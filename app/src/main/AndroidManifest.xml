@@ -11,12 +11,7 @@
         android:theme="@style/Theme.CineFast">
 
         <activity android:name=".OnboardingActivity" />
-        <activity android:name=".HomeActivity" />
-        <activity android:name=".SeatSelectionActivity" />
-        <activity android:name=".SnacksActivity" />
-        <activity android:name=".TicketSummaryActivity" />
-
-
+        <activity android:name=".MainActivity" />
 
         <activity
             android:name=".SplashActivity"
@@ -31,5 +26,4 @@
 
     </application>
 
-
-</manifest>
+</manifest>
