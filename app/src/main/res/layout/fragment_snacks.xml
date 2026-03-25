@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0B0F1A">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="16dp">
+
+        <ImageButton
+            android:id="@+id/backBtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="#80FFFFFF"
+            android:src="@drawable/ic_back"
+            android:scaleType="centerInside"
+            android:padding="10dp"
+            android:contentDescription="Back" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Snacks &amp; Drinks"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginEnd="40dp" />
+    </LinearLayout>
+
+    <!-- Snacks ListView -->
+    <ListView
+        android:id="@+id/snackListView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="0dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:clipToPadding="false" />
+
+    <!-- Confirm Button -->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/confirmBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="Confirm Selection"
+        android:textColor="@color/white"
+        android:background="@drawable/bg_button_red"
+        android:textStyle="bold"
+        android:textSize="16sp" />
+
+</LinearLayout>
