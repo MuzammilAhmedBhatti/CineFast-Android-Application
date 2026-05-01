@@ -28,11 +28,8 @@ public class ComingSoonFragment extends Fragment implements MovieAdapter.OnMovie
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        // Populate movie list with Coming Soon movies
-        movieList = new ArrayList<>();
-        movieList.add(new Movie("The Last Of Us", "Drama", "139 min", R.drawable.m4, "https://www.youtube.com/watch?v=uLtkt8BonwM", false));
-        movieList.add(new Movie("Interstellar", "Sci-Fi", "169 min", R.drawable.m5, "https://www.youtube.com/watch?v=zSWdZVtXT7E", false));
-        movieList.add(new Movie("The Flash", "Action", "144 min", R.drawable.m6, "https://www.youtube.com/watch?v=hebWYacbdvc", false));
+        // Load movies from JSON instead of hardcoding (coming soon = false for nowShowingOnly)
+        movieList = MovieJsonParser.parseMovies(requireContext(), false);
 
         MovieAdapter adapter = new MovieAdapter(movieList, this);
         recyclerView.setAdapter(adapter);

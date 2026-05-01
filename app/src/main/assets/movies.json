@@ -1,0 +1,52 @@
+{
+  "movies": [
+    {
+      "name": "Spiderman",
+      "genre": "Action",
+      "duration": "152 min",
+      "poster": "m1",
+      "trailerUrl": "https://www.youtube.com/watch?v=JfVOs4VSpmA",
+      "isNowShowing": true
+    },
+    {
+      "name": "Batman",
+      "genre": "Action",
+      "duration": "180 min",
+      "poster": "m2",
+      "trailerUrl": "https://www.youtube.com/watch?v=mqqft2x_Aa4",
+      "isNowShowing": true
+    },
+    {
+      "name": "Aquaman",
+      "genre": "Action",
+      "duration": "163 min",
+      "poster": "m3",
+      "trailerUrl": "https://www.youtube.com/watch?v=WDkg3h8PCVU",
+      "isNowShowing": true
+    },
+    {
+      "name": "The Last Of Us",
+      "genre": "Drama",
+      "duration": "139 min",
+      "poster": "m4",
+      "trailerUrl": "https://www.youtube.com/watch?v=uLtkt8BonwM",
+      "isNowShowing": false
+    },
+    {
+      "name": "Interstellar",
+      "genre": "Sci-Fi",
+      "duration": "169 min",
+      "poster": "m5",
+      "trailerUrl": "https://www.youtube.com/watch?v=zSWdZVtXT7E",
+      "isNowShowing": false
+    },
+    {
+      "name": "The Flash",
+      "genre": "Action",
+      "duration": "144 min",
+      "poster": "m6",
+      "trailerUrl": "https://www.youtube.com/watch?v=hebWYacbdvc",
+      "isNowShowing": false
+    }
+  ]
+}

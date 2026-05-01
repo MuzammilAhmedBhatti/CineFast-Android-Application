@@ -47,12 +47,9 @@ public class SnacksFragment extends Fragment implements SnackAdapter.OnQuantityC
         confirmBtn = view.findViewById(R.id.confirmBtn);
         backBtn = view.findViewById(R.id.backBtn);
 
-        // Populate snack list
-        snackList = new ArrayList<>();
-        snackList.add(new Snack("Medium Soft Popcorn", 8.99, R.drawable.popcorn));
-        snackList.add(new Snack("Large Caramel Nachos", 7.99, R.drawable.nachos));
-        snackList.add(new Snack("Large Soft Drink", 5.99, R.drawable.soft_drink));
-        snackList.add(new Snack("Candy Mix", 6.99, R.drawable.candy));
+        // Load snacks from SQLite database instead of hardcoding
+        SnackDbHelper dbHelper = new SnackDbHelper(requireContext());
+        snackList = dbHelper.getAllSnacks();
 
         // Setup adapter
         SnackAdapter adapter = new SnackAdapter(requireContext(), snackList, this);

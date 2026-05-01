@@ -28,11 +28,8 @@ public class NowShowingFragment extends Fragment implements MovieAdapter.OnMovie
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        // Populate movie list
-        movieList = new ArrayList<>();
-        movieList.add(new Movie("Spiderman", "Action", "152 min", R.drawable.m1, "https://www.youtube.com/watch?v=JfVOs4VSpmA", true));
-        movieList.add(new Movie("Batman", "Action", "180 min", R.drawable.m2, "https://www.youtube.com/watch?v=mqqft2x_Aa4", true));
-        movieList.add(new Movie("Aquaman", "Action", "163 min", R.drawable.m3, "https://www.youtube.com/watch?v=WDkg3h8PCVU", true));
+        // Load movies from JSON instead of hardcoding
+        movieList = MovieJsonParser.parseMovies(requireContext(), true);
 
         MovieAdapter adapter = new MovieAdapter(movieList, this);
         recyclerView.setAdapter(adapter);
