@@ -42,6 +42,7 @@ public class MovieJsonParser {
                 String duration = movieObj.getString("duration");
                 String posterName = movieObj.getString("poster");
                 String trailerUrl = movieObj.getString("trailerUrl");
+                String date = movieObj.getString("date");
 
                 // Map drawable name to resource ID
                 int posterResId = context.getResources().getIdentifier(
@@ -52,7 +53,7 @@ public class MovieJsonParser {
                     posterResId = R.drawable.img;
                 }
 
-                movies.add(new Movie(name, genre, duration, posterResId, trailerUrl, isNowShowing));
+                movies.add(new Movie(name, genre, duration, posterResId, trailerUrl, isNowShowing, date));
             }
 
         } catch (IOException | JSONException e) {

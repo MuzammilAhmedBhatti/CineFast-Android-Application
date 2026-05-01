@@ -7,14 +7,16 @@ public class Movie {
     private int posterResId;
     private String trailerUrl;
     private boolean isNowShowing;
+    private String date;
 
-    public Movie(String name, String genre, String duration, int posterResId, String trailerUrl, boolean isNowShowing) {
+    public Movie(String name, String genre, String duration, int posterResId, String trailerUrl, boolean isNowShowing, String date) {
         this.name = name;
         this.genre = genre;
         this.duration = duration;
         this.posterResId = posterResId;
         this.trailerUrl = trailerUrl;
         this.isNowShowing = isNowShowing;
+        this.date = date;
     }
 
     public String getName() {
@@ -63,5 +65,13 @@ public class Movie {
 
     public void setNowShowing(boolean nowShowing) {
         isNowShowing = nowShowing;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 }

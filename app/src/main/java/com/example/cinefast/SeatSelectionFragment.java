@@ -18,9 +18,16 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class SeatSelectionFragment extends Fragment {
@@ -72,17 +79,8 @@ public class SeatSelectionFragment extends Fragment {
         // Set movie title
         movieTitle.setText(selectedMovie);
 
-        // Initialize booked seats
-        bookedSeats.addAll(Arrays.asList(49, 60, 61));
-
-        if (isNowShowing) {
-            setupNowShowingMode();
-        } else {
-            setupComingSoonMode();
-        }
-
-        // Setup seat listeners
-        setupSeatListeners();
+        // Fetch booked seats from Firebase for this movie, then setup UI
+        fetchBookedSeatsFromFirebase();
 
         // Back button
         backBtn.setOnClickListener(v -> {
@@ -91,10 +89,106 @@ public class SeatSelectionFragment extends Fragment {
             }
         });
 
+        return view;
+    }
+
+    /**
+     * Fetch all bookings from Firebase for ALL users, filter by this movie name,
+     * and collect their seat labels. Convert labels back to seat indices and mark as booked.
+     */
+    private void fetchBookedSeatsFromFirebase() {
+        DatabaseReference allBookingsRef = FirebaseDatabase.getInstance()
+                .getReference("bookings");
+
+        allBookingsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                bookedSeats.clear();
+
+                // Iterate over all users
+                for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                    // Iterate over each user's bookings
+                    for (DataSnapshot bookingSnapshot : userSnapshot.getChildren()) {
+                        Booking booking = bookingSnapshot.getValue(Booking.class);
+                        if (booking != null && selectedMovie != null
+                                && selectedMovie.equals(booking.getMovieName())) {
+                            // This booking is for the same movie — mark its seats as booked
+                            List<String> seatLabels = booking.getSelectedSeatLabels();
+                            if (seatLabels != null) {
+                                for (String label : seatLabels) {
+                                    int seatIndex = seatLabelToIndex(label);
+                                    if (seatIndex >= 0) {
+                                        bookedSeats.add(seatIndex);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Now setup the UI with the actual booked seats
+                setupUIAfterFetch();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // If Firebase fails, proceed with no booked seats
+                setupUIAfterFetch();
+            }
+        });
+    }
+
+    /**
+     * Called after Firebase data is loaded. Sets up the seat grid and buttons.
+     */
+    private void setupUIAfterFetch() {
+        if (isNowShowing) {
+            setupNowShowingMode();
+        } else {
+            setupComingSoonMode();
+        }
+
+        // Apply booked seat styling (red background) and setup listeners
+        setupSeatListeners();
+
         // Initial state
         updateSelectionText();
+    }
 
-        return view;
+    /**
+     * Convert a seat label like "Row 3, Seat 5" back to the grid index.
+     *
+     * The label is created in getSelectedSeatLabels():
+     *   row = (seatIndex / COLUMNS) + 1
+     *   colInGrid = seatIndex % COLUMNS
+     *   if colInGrid < 4 → seatNum = colInGrid + 1
+     *   if colInGrid == 4 → skip (space column)
+     *   if colInGrid > 4 → seatNum = colInGrid
+     *
+     * Reverse:
+     *   seatIndex = (row - 1) * COLUMNS + colInGrid
+     *   For seatNum 1-4: colInGrid = seatNum - 1
+     *   For seatNum 5-8: colInGrid = seatNum
+     */
+    private int seatLabelToIndex(String label) {
+        try {
+            // Expected format: "Row X, Seat Y"
+            String[] parts = label.split(",");
+            int row = Integer.parseInt(parts[0].trim().replace("Row ", ""));
+            int seatNum = Integer.parseInt(parts[1].trim().replace("Seat ", ""));
+
+            int colInGrid;
+            if (seatNum <= 4) {
+                colInGrid = seatNum - 1;
+            } else {
+                colInGrid = seatNum;
+            }
+
+            return (row - 1) * COLUMNS + colInGrid;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
     }
 
     private void setupNowShowingMode() {
@@ -161,6 +255,8 @@ public class SeatSelectionFragment extends Fragment {
                     // Coming Soon: disable all seats
                     child.setEnabled(false);
                 } else if (bookedSeats.contains(seatIndex)) {
+                    // Seat is already booked — show red and disable
+                    child.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.bg_seat_booked));
                     child.setEnabled(false);
                 } else {
                     child.setOnClickListener(v -> toggleSeat(v, seatIndex));

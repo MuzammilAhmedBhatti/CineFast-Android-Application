@@ -25,7 +25,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class MyBookingsFragment extends Fragment implements BookingAdapter.OnCancelClickListener {
 
@@ -36,6 +38,8 @@ public class MyBookingsFragment extends Fragment implements BookingAdapter.OnCan
     private ArrayList<Booking> bookingList;
     private DatabaseReference bookingsRef;
     private String userId;
+    // Map of movie name -> movie date from movies.json
+    private Map<String, String> movieDateMap;
 
     @Nullable
     @Override
@@ -47,6 +51,9 @@ public class MyBookingsFragment extends Fragment implements BookingAdapter.OnCan
         emptyText = view.findViewById(R.id.emptyText);
         backBtn = view.findViewById(R.id.backBtn);
         menuBtn = view.findViewById(R.id.menuBtn);
+
+        // Load movie dates from movies.json
+        loadMovieDates();
 
         // Setup RecyclerView
         bookingList = new ArrayList<>();
@@ -81,6 +88,24 @@ public class MyBookingsFragment extends Fragment implements BookingAdapter.OnCan
         }
 
         return view;
+    }
+
+    /**
+     * Load all movies from movies.json and build a map of movieName -> date
+     * so we can look up the movie's date when deciding if a booking is cancellable.
+     */
+    private void loadMovieDates() {
+        movieDateMap = new HashMap<>();
+        // Load both now-showing and coming-soon movies
+        ArrayList<Movie> nowShowing = MovieJsonParser.parseMovies(requireContext(), true);
+        ArrayList<Movie> comingSoon = MovieJsonParser.parseMovies(requireContext(), false);
+
+        for (Movie movie : nowShowing) {
+            movieDateMap.put(movie.getName(), movie.getDate());
+        }
+        for (Movie movie : comingSoon) {
+            movieDateMap.put(movie.getName(), movie.getDate());
+        }
     }
 
     private void fetchBookings() {
@@ -121,8 +146,11 @@ public class MyBookingsFragment extends Fragment implements BookingAdapter.OnCan
 
     @Override
     public void onCancelClick(Booking booking, int position) {
-        // Check if booking is in the future
-        if (!isBookingInFuture(booking.getDateTime())) {
+        // Look up the movie's date from movies.json using the booking's movie name
+        String movieDate = movieDateMap.get(booking.getMovieName());
+
+        // Check if the movie date is in the future (cancellable) or past (not cancellable)
+        if (!isMovieDateInFuture(movieDate)) {
             Toast.makeText(requireContext(), "Cannot cancel past bookings", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -147,31 +175,33 @@ public class MyBookingsFragment extends Fragment implements BookingAdapter.OnCan
                 .child(booking.getBookingId());
 
         bookingRef.removeValue().addOnCompleteListener(task -> {
+            if (!isAdded()) return;
             if (task.isSuccessful()) {
-                adapter.removeItem(position);
+                // The ValueEventListener in fetchBookings() will automatically
+                // refresh the list and handle empty state — no manual removal needed.
                 Toast.makeText(requireContext(), "Booking Cancelled Successfully", Toast.LENGTH_SHORT).show();
-
-                if (bookingList.isEmpty()) {
-                    emptyText.setVisibility(View.VISIBLE);
-                    bookingsRecyclerView.setVisibility(View.GONE);
-                }
             } else {
                 Toast.makeText(requireContext(), "Failed to cancel booking", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private boolean isBookingInFuture(String dateTimeStr) {
-        if (dateTimeStr == null || dateTimeStr.isEmpty()) {
+    /**
+     * Compare the movie's date from movies.json with the current date.
+     * If the movie date is in the future, the booking can be cancelled.
+     * If the movie date is in the past, it cannot be cancelled.
+     */
+    private boolean isMovieDateInFuture(String movieDateStr) {
+        if (movieDateStr == null || movieDateStr.isEmpty()) {
             return false;
         }
 
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy, HH:mm", Locale.getDefault());
-            Date bookingDate = sdf.parse(dateTimeStr);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            Date movieDate = sdf.parse(movieDateStr);
             Date currentDate = new Date();
 
-            return bookingDate != null && bookingDate.after(currentDate);
+            return movieDate != null && movieDate.after(currentDate);
         } catch (ParseException e) {
             e.printStackTrace();
             return false;

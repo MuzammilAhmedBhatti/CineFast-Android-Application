@@ -38,7 +38,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
         Movie movie = movieList.get(position);
         holder.movieName.setText(movie.getName());
-        holder.movieGenre.setText(movie.getGenre() + " / " + movie.getDuration());
+        holder.movieGenre.setText(movie.getGenre() + " / " + movie.getDuration() + " | " + movie.getDate());
         holder.moviePoster.setImageResource(movie.getPosterResId());
 
         holder.bookBtn.setOnClickListener(v -> {
