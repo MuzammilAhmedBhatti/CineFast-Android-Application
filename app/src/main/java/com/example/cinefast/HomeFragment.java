@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -65,46 +64,13 @@ public class HomeFragment extends Fragment {
             Toast.makeText(requireContext(), "Showing Tomorrow Movies", Toast.LENGTH_SHORT).show();
         });
 
-        // Three-dots menu
-        menuBtn.setOnClickListener(v -> showPopupMenu(v));
-
-        return view;
-    }
-
-    private void showPopupMenu(View anchor) {
-        PopupMenu popupMenu = new PopupMenu(requireContext(), anchor);
-        popupMenu.getMenuInflater().inflate(R.menu.menu_home, popupMenu.getMenu());
-
-        popupMenu.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == R.id.action_view_last_booking) {
-                showLastBookingDialog();
-                return true;
+        // Menu button now opens the navigation drawer
+        menuBtn.setOnClickListener(v -> {
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).openDrawer();
             }
-            return false;
         });
 
-        popupMenu.show();
-    }
-
-    private void showLastBookingDialog() {
-        SharedPreferences prefs = requireContext().getSharedPreferences("CineFastBooking", Context.MODE_PRIVATE);
-        String movieName = prefs.getString("movie_name", null);
-        int seatCount = prefs.getInt("seat_count", 0);
-        float totalPrice = prefs.getFloat("total_price", 0f);
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Last Booking");
-
-        if (movieName != null) {
-            String message = "Movie: " + movieName + "\n"
-                    + "Seats: " + seatCount + "\n"
-                    + "Total Price: $" + String.format("%.2f", totalPrice);
-            builder.setMessage(message);
-        } else {
-            builder.setMessage("No previous booking found.");
-        }
-
-        builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
-        builder.show();
+        return view;
     }
 }
