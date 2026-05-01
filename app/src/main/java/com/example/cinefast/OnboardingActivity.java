@@ -19,7 +19,8 @@ public class OnboardingActivity extends AppCompatActivity {
         btnStart = findViewById(R.id.btnStart);
 
         btnStart.setOnClickListener(v -> {
-            Intent intent = new Intent(OnboardingActivity.this, MainActivity.class);
+            // Navigate to Login instead of MainActivity
+            Intent intent = new Intent(OnboardingActivity.this, LoginActivity.class);
             startActivity(intent);
         });
     }

@@ -41,9 +41,17 @@ public class SplashActivity extends AppCompatActivity {
 
         logo.startAnimation(rotate);
 
-        // 🔹 Move to next screen after 5 sec
+        // 🔹 Check session and navigate accordingly
+        SessionManager sessionManager = new SessionManager(this);
+
         new Handler().postDelayed(() -> {
-            startActivity(new Intent(SplashActivity.this, OnboardingActivity.class));
+            if (sessionManager.isLoggedIn()) {
+                // User already logged in, skip to MainActivity
+                startActivity(new Intent(SplashActivity.this, MainActivity.class));
+            } else {
+                // Go to Onboarding
+                startActivity(new Intent(SplashActivity.this, OnboardingActivity.class));
+            }
             finish();
         }, 5000);
     }
