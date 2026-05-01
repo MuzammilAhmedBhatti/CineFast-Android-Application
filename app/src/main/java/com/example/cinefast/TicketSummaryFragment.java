@@ -13,12 +13,19 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class TicketSummaryFragment extends Fragment {
 
@@ -103,6 +110,9 @@ public class TicketSummaryFragment extends Fragment {
         // Save to SharedPreferences
         saveBookingToSharedPreferences(total);
 
+        // Save to Firebase Realtime Database
+        saveBookingToFirebase(total);
+
         // Back button
         backBtn.setOnClickListener(v -> {
             if (getActivity() != null) {
@@ -123,6 +133,48 @@ public class TicketSummaryFragment extends Fragment {
         editor.putInt("seat_count", seatCount);
         editor.putFloat("total_price", (float) totalPrice);
         editor.apply();
+    }
+
+    private void saveBookingToFirebase(double totalPrice) {
+        SessionManager sessionManager = new SessionManager(requireContext());
+        String userId = sessionManager.getUserId();
+
+        if (userId == null) {
+            return; // Not logged in, skip Firebase save
+        }
+
+        DatabaseReference bookingsRef = FirebaseDatabase.getInstance()
+                .getReference("bookings")
+                .child(userId);
+
+        String bookingId = bookingsRef.push().getKey();
+
+        if (bookingId != null) {
+            // Get current date/time
+            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy, HH:mm", Locale.getDefault());
+            String dateTime = sdf.format(new Date());
+
+            // Get drawable name from resource ID
+            String movieImageName = "";
+            try {
+                movieImageName = requireContext().getResources().getResourceEntryName(movieImageResId);
+            } catch (Exception e) {
+                movieImageName = "img";
+            }
+
+            Booking booking = new Booking(
+                    bookingId,
+                    userId,
+                    movieName,
+                    movieImageName,
+                    seatCount,
+                    totalPrice,
+                    dateTime,
+                    selectedSeats
+            );
+
+            bookingsRef.child(bookingId).setValue(booking);
+        }
     }
 
     private void shareTicket() {
